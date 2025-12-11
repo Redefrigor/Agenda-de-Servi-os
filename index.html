@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Agenda de Duplas - Redefrigor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quattrocento+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --azul:#0056A4;
+      --verde:#00A428;
+      --azul-escuro:#00325E;
+      --bg:#f4f6fb;
+      --card:#ffffff;
+      --texto:#1f2933;
+      --muted:#6b7280;
+      --borda:#d5e0f2;
+      --page-width:1200px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Quattrocento Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding:20px;
+      background:var(--bg);
+      color:var(--texto);
+      font-size:16px;
+      -webkit-font-smoothing:antialiased;
+    }
+
+    .page{
+      max-width:var(--page-width);
+      margin:0 auto;
+    }
+
+    /* TOPO: logo à esquerda, título centro, plantões à direita */
+    header.top-bar{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:16px;
+      justify-content:space-between;
+    }
+    .top-left{
+      display:flex;
+      align-items:center;
+      gap:14px;
+    }
+    .logo{
+      height:64px;
+      max-width:260px;
+    }
+    .top-text h1{
+      font-size:1.8rem;
+      color:var(--azul);
+      margin-bottom:4px;
+    }
+    .top-text .subtitle{
+      font-size:1rem;
+      color:var(--muted);
+      margin-bottom:2px;
+    }
+    .top-text .periodo{
+      font-size:0.95rem;
+      color:var(--azul-escuro);
+      font-weight:600;
+    }
+
+    .plantao-boxes{
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .plantao{
+      background:#fff;
+      border:1px solid var(--borda);
+      border-radius:10px;
+      padding:10px 12px;
+      min-width:180px;
+      text-align:left;
+      box-shadow:0 1px 4px rgba(0,0,0,0.04);
+    }
+    .plantao h4{
+      margin:0 0 6px 0;
+      font-size:0.85rem;
+      color:var(--azul);
+      font-weight:700;
+    }
+    .plantao .who{
+      font-weight:700;
+      color:var(--azul-escuro);
+      font-size:1rem;
+    }
+    .plantao .plate{
+      margin-top:6px;
+      font-size:0.9rem;
+      color:var(--muted);
+    }
+
+    .card{
+      background:var(--card);
+      border-radius:14px;
+      padding:18px;
+      box-shadow:0 1px 6px rgba(15,23,42,.06);
+      border:1px solid #e8eef8;
+    }
+
+    .controls{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+      justify-content:flex-start;
+    }
+    .view-toggle{display:inline-flex;padding:3px;border-radius:999px;background:#e7edf8;border:1px solid var(--borda);}
+    .toggle-btn{border:0;background:transparent;padding:8px 16px;font-size:0.95rem;font-weight:700;color:var(--azul-escuro);cursor:pointer;border-radius:999px}
+    .toggle-btn.active{background:var(--verde);color:#fff;box-shadow:0 1px 6px rgba(0,164,40,.25)}
+    label{font-size:.85rem;color:var(--muted);font-weight:700;text-transform:uppercase}
+    select{padding:8px;border-radius:10px;border:1px solid var(--borda);min-width:260px;font-size:0.98rem}
+
+    .summary{display:flex;flex-wrap:wrap;gap:14px;padding:12px;border-radius:12px;background:var(--verde);border:1px solid var(--verde);font-size:.95rem;margin-bottom:14px;color:#fff}
+    .summary-item strong{display:block;font-size:.75rem;text-transform:uppercase;color:#e7fff0;margin-bottom:4px;font-weight:700}
+    .summary-item span{font-weight:700;color:#ffffff}
+
+    /* Calendário */
+    .calendar-wrapper{border-radius:12px;border:1px solid var(--borda);overflow:hidden}
+    .calendar-header{display:grid;grid-template-columns:repeat(5,1fr);background:var(--azul); }
+    .calendar-header div{padding:12px 6px;text-align:center;font-size:1rem;font-weight:700;color:#fff}
+    .calendar-grid{display:grid;grid-template-columns:repeat(5,1fr)}
+    .day-card{border-right:1px solid var(--borda);border-bottom:1px solid var(--borda);padding:12px;min-height:180px;background:#ffffff;display:flex;flex-direction:column;gap:10px;font-size:.95rem}
+    .day-name{font-weight:700;color:var(--azul-escuro);font-size:1rem}
+
+    .period-block{background:#ffffff;border-radius:10px;padding:10px;border:1px solid #f0f5f9;display:flex;flex-direction:column;gap:8px}
+    .period-title{font-size:.95rem;font-weight:700;color:var(--azul);}
+
+    .info-row{display:grid;grid-template-columns:1fr;gap:6px}
+    .info-card{background:#fff;border-radius:8px;border:2px solid var(--azul);padding:8px 10px;display:flex;flex-direction:column;gap:4px}
+    .info-label{font-size:.78rem;font-weight:700;color:var(--azul)}
+    .info-value{font-size:1rem;font-weight:700;color:var(--azul-escuro)}
+    .info-empty{color:var(--muted);font-style:italic;font-weight:600}
+
+    .placeholder{padding:18px;text-align:center;font-size:1rem;color:var(--muted)}
+    .hint{margin-top:10px;font-size:.9rem;color:var(--muted)}
+
+    /* Plantão table */
+    .plantao-card{border-radius:12px;border:1px solid var(--borda);overflow:hidden;background:#fff}
+    .plantao-header{background:var(--azul);padding:12px;font-weight:700;color:#fff}
+    table.plantao-table{width:100%;border-collapse:collapse;font-size:1rem;background:#fff}
+    .plantao-table thead{background:#f4f7ff}
+    .plantao-table th,.plantao-table td{padding:10px;border-bottom:1px solid #e9eef8;text-align:left}
+    .plantao-table th{font-size:.9rem;color:var(--muted);text-transform:uppercase}
+    .plantao-table tbody tr:nth-child(odd){background:#fbfdff}
+
+    @media(max-width:1000px){
+      .calendar-header,.calendar-grid{grid-template-columns:repeat(3,1fr)}
+      header.top-bar{flex-direction:column;align-items:flex-start;gap:12px}
+      .plantao-boxes{width:100%;justify-content:flex-start}
+    }
+    @media(max-width:640px){
+      .calendar-header,.calendar-grid{grid-template-columns:repeat(2,1fr)}
+      .day-card{min-height:190px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="top-bar">
+      <div class="top-left">
+        <img src="logo-redefrigor.png" alt="Redefrigor" class="logo">
+        <div class="top-text">
+          <h1>Agenda Semanal das Duplas</h1>
+          <div class="subtitle">Visualize a escala da semana por dupla ou consulte a escala de plantão.</div>
+          <div class="periodo">Período: 08/12/2025 a 14/12/2025</div>
+        </div>
+      </div>
+
+      <div class="plantao-boxes">
+        <div class="plantao">
+          <h4>Plantão Sábado</h4>
+          <div class="who">Matheus</div>
+          <div class="plate">Veículo: <span class="plate-val">—</span></div>
+        </div>
+        <div class="plantao">
+          <h4>Plantão Domingo</h4>
+          <div class="who">Willian</div>
+          <div class="plate">Veículo: <span class="plate-val">—</span></div>
+        </div>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="controls">
+        <div class="view-toggle">
+          <button class="toggle-btn active" data-view="agenda">Agenda por dupla</button>
+          <button class="toggle-btn" data-view="plantao">Escala de plantão</button>
+        </div>
+
+        <div class="filters-row" id="agendaControls">
+          <div>
+            <label for="duplaSelect">Dupla</label><br>
+            <select id="duplaSelect"><option value="">Selecione a dupla...</option></select>
+          </div>
+        </div>
+      </div>
+
+      <div id="agendaView">
+        <div id="placeholder" class="placeholder">Selecione uma dupla acima para visualizar a agenda da semana.</div>
+
+        <div id="summary" class="summary" style="display:none"></div>
+
+        <div id="calendarWrapper" class="calendar-wrapper" style="display:none">
+          <div class="calendar-header" id="calendarHeader"></div>
+          <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <div class="hint">• Cada dia: Manhã e Tarde. • Em cada período: Cliente → Serviço → CH.</div>
+      </div>
+
+      <div id="plantaoView" style="display:none">
+        <div class="plantao-wrapper">
+<div style="margin-bottom:10px;">
+  <label for="plantaoFilter">Filtrar técnico (plantão)</label><br>
+  <select id="plantaoFilter" style="padding:8px;border-radius:8px;border:1px solid #d5e0f2;min-width:260px;">
+    <option value="">Todos</option>
+    <option value="m. andré">M. André</option>
+    <option value="matheus">Matheus</option>
+    <option value="cristian">Cristian</option>
+    <option value="alex">Alex</option>
+    <option value="marlon">Marlon</option>
+    <option value="willian">Willian</option>
+    <option value="fabrício">Fabrício</option>
+    <option value="lourival">Lourival</option>
+    <option value="gustavo">Gustavo</option>
+    <option value="tiago">Tiago</option>
+  </select>
+</div>
+
+          <div class="plantao-card">
+            <div class="plantao-header">Escala de plantão — manutenção</div>
+            <table class="plantao-table">
+              <thead><tr><th>Data</th><th>Nome(s) de plantão</th><th>Veículo</th></tr></thead>
+              <tbody>
+                <tr><td>06/dez</td><td>M. André</td><td>&nbsp;</td></tr>
+                <tr><td>07/dez</td><td>Matheus</td><td>&nbsp;</td></tr>
+                <tr><td>13/dez</td><td>Cristian</td><td>&nbsp;</td></tr>
+                <tr><td>14/dez</td><td>Alex</td><td>&nbsp;</td></tr>
+                <tr><td>20/dez</td><td>Marlon</td><td>&nbsp;</td></tr>
+                <tr><td>21/dez</td><td>Willian</td><td>&nbsp;</td></tr>
+                <tr><td>24/dez</td><td>Fabrício, Lourival, Gustavo, Tiago</td><td>&nbsp;</td></tr>
+                <tr><td>25/dez</td><td>Matheus</td><td>&nbsp;</td></tr>
+                <tr><td>27/dez</td><td>M. André</td><td>&nbsp;</td></tr>
+                <tr><td>28/dez</td><td>Cristian</td><td>&nbsp;</td></tr>
+                <tr><td>31/dez</td><td>Alex, Marlon</td><td>&nbsp;</td></tr>
+                <tr><td>01/jan</td><td>Willian</td><td>&nbsp;</td></tr>
+                <tr><td>03/jan</td><td>Gustavo</td><td>&nbsp;</td></tr>
+                <tr><td>04/jan</td><td>Tiago</td><td>&nbsp;</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="plantao-obs">Obs: os veículos de plantão serão definidos conforme a agenda da semana.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+const weekDays = [
+  { id: 'seg', label: 'Segunda' },
+  { id: 'ter', label: 'Terça' },
+  { id: 'qua', label: 'Quarta' },
+  { id: 'qui', label: 'Quinta' },
+  { id: 'sex', label: 'Sexta' }
+];
+
+const duplas = [
+  { id:'dupla1', duplaLabel:'Dupla 01', tecnico:'Cristian', auxiliar:'Alex', rdv_tecnico:800, rdv_aux:600, veiculo:'PZM5F48',
+    dias:{ seg:{manha:{ch:'2:00',servico:'Preventiva eletrofrio',cliente:'CD Muffato - Cascavel'}, tarde:{ch:'4:30',servico:'Preventiva eletrofrio',cliente:'CD Muffato - Cascavel'}},
+           ter:{manha:{ch:'3:30',servico:'Preventiva eletrofrio',cliente:'Hipermercado Muffato JK'}, tarde:{ch:'3:30',servico:'Preventiva eletrofrio',cliente:'Hipermercado Muffato JK'}},
+           qua:{manha:{ch:'4:00',servico:'Preventiva eletrofrio',cliente:'Muffato Max Guaíra'}, tarde:{ch:'4:00',servico:'Preventiva eletrofrio',cliente:'Muffato Max Guaíra'}},
+           qui:{manha:{ch:'3:30',servico:'Contrato / preventiva',cliente:'Porti Atacadista Foz'}, tarde:{ch:'4:00',servico:'Contrato / preventiva',cliente:'Porti Atacadista Foz'}},
+           sex:{manha:{ch:'4:00',servico:'Acerto / fechamento rack',cliente:'Supermercado Irani Matriz'}, tarde:{ch:'3:30',servico:'Preventiva eletrofrio',cliente:'Ponto Certo Guaraniaçu'}} }
+  },
+  { id:'dupla2', duplaLabel:'Dupla 02', tecnico:'M. André', auxiliar:'Tiago', rdv_tecnico:500, rdv_aux:350, veiculo:'TEQ3J71',
+    dias:{ seg:{manha:{ch:'0:00',servico:'—',cliente:'—'}, tarde:{ch:'1:00',servico:'Deslocamento / preparação',cliente:'Região C-Vale'}},
+           ter:{manha:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Naviraí'}, tarde:{ch:'4:30',servico:'Contrato',cliente:'C-Vale Naviraí'}},
+           qua:{manha:{ch:'4:30',servico:'Contrato',cliente:'C-Vale Rio Brilhante'}, tarde:{ch:'4:30',servico:'Contrato',cliente:'C-Vale Rio Brilhante'}},
+           qui:{manha:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Caarapó'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Caarapó'}},
+           sex:{manha:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Caarapó'}, tarde:{ch:'4:00',servico:'Retorno / ajustes finais',cliente:'C-Vale Caarapó'}} }
+  },
+  { id:'dupla3', duplaLabel:'Dupla 03', tecnico:'Gustavo', auxiliar:'Matheus', rdv_tecnico:500, rdv_aux:350, veiculo:'TEQ4H88',
+    dias:{ seg:{manha:{ch:'2:00',servico:'Contrato',cliente:'C-Vale Terra Roxa'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Terra Roxa'}},
+           ter:{manha:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Assis Chateaubriand'}, tarde:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Assis Chateaubriand'}},
+           qua:{manha:{ch:'3:30',servico:'Contrato',cliente:'Supermercado Irani Matriz'}, tarde:{ch:'3:30',servico:'Contrato',cliente:'Supermercado Irani Matriz'}},
+           qui:{manha:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Terra Roxa'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Terra Roxa'}},
+           sex:{manha:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Assis Chateaubriand'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'Supermercado Irani Matriz'}} }
+  },
+  { id:'dupla4', duplaLabel:'Dupla 04', tecnico:'Fabrício', auxiliar:'Willian', rdv_tecnico:500, rdv_aux:350, veiculo:'TJG7H05',
+    dias:{ seg:{manha:{ch:'2:00',servico:'Contrato',cliente:'Festval/Beal - Tancredo Neves'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'Festval/Beal - Tancredo Neves'}},
+           ter:{manha:{ch:'3:30',servico:'Contrato',cliente:'Festval/Beal - Faculdade'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'Festval/Beal - Faculdade'}},
+           qua:{manha:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Palotina'}, tarde:{ch:'4:00',servico:'Contrato',cliente:'C-Vale Palotina'}},
+           qui:{manha:{ch:'3:30',servico:'Contrato',cliente:'Festval/Beal - Tancredo Neves'}, tarde:{ch:'3:30',servico:'Contrato',cliente:'Festval/Beal - Faculdade'}},
+           sex:{manha:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Palotina'}, tarde:{ch:'3:30',servico:'Contrato',cliente:'C-Vale Palotina'}} }
+  },
+  { id:'dupla5', duplaLabel:'Dupla 05', tecnico:'Marlon', auxiliar:'Lourival', rdv_tecnico:1000, rdv_aux:450, veiculo:'TJP4C34',
+    dias:{ seg:{manha:{ch:'0:00',servico:'—',cliente:'—'}, tarde:{ch:'1:00',servico:'Deslocamento / preparação',cliente:'Região Oyshi / Gebon'}},
+           ter:{manha:{ch:'4:00',servico:'Preventiva / limpeza condensador',cliente:'Oyshi (contrato)'}, tarde:{ch:'4:00',servico:'Preventiva / limpeza condensador',cliente:'Oyshi (contrato)'}},
+           qua:{manha:{ch:'4:30',servico:'Preventiva / limpeza condensador',cliente:'Gebon Sorvetes'}, tarde:{ch:'4:30',servico:'Preventiva / limpeza condensador',cliente:'Gebon Sorvetes'}},
+           qui:{manha:{ch:'3:30',servico:'Retorno / ajustes',cliente:'Oyshi / Gebon'}, tarde:{ch:'4:30',servico:'Retorno / ajustes',cliente:'Oyshi / Gebon'}},
+           sex:{manha:{ch:'4:30',servico:'Finalização',cliente:'Gebon Sorvetes'}, tarde:{ch:'1:00',servico:'Reserva / eventual emergência',cliente:'Região Oyshi / Gebon'}} }
+  }
+];
+
+const duplaSelect = document.getElementById('duplaSelect');
+const summaryEl = document.getElementById('summary');
+const calendarWrapper = document.getElementById('calendarWrapper');
+const calendarHeader = document.getElementById('calendarHeader');
+const calendarGrid = document.getElementById('calendarGrid');
+const placeholder = document.getElementById('placeholder');
+const agendaView = document.getElementById('agendaView');
+const plantaoView = document.getElementById('plantaoView');
+const toggleButtons = document.querySelectorAll('.toggle-btn');
+
+function initDuplaSelect(){
+  duplas.forEach(d => {
+    const opt = document.createElement('option');
+    opt.value = d.id;
+    opt.textContent = d.duplaLabel + ' — ' + d.tecnico + ' / ' + d.auxiliar;
+    duplaSelect.appendChild(opt);
+  });
+}
+
+function renderHeader(){
+  calendarHeader.innerHTML = "";
+  weekDays.forEach(d => {
+    const div = document.createElement('div');
+    div.textContent = d.label;
+    calendarHeader.appendChild(div);
+  });
+}
+
+function makeInfoCard(label, value){
+  const div = document.createElement('div');
+  div.className = 'info-card';
+  const l = document.createElement('div');
+  l.className = 'info-label';
+  l.textContent = label;
+  const v = document.createElement('div');
+  v.className = 'info-value';
+  if(!value || value === '—'){
+    v.textContent = 'Sem informação';
+    v.classList.add('info-empty');
+  }else{
+    v.textContent = value;
+  }
+  div.appendChild(l);
+  div.appendChild(v);
+  return div;
+}
+
+function renderCalendar(dupla){
+  summaryEl.innerHTML = '';
+  const items = [
+    { label: 'Dupla', value: dupla.duplaLabel },
+    { label: 'Técnico', value: dupla.tecnico },
+    { label: 'Auxiliar', value: dupla.auxiliar },
+    { label: 'Veículo', value: dupla.veiculo },
+    { label: 'RDV Técnico', value: 'R$ ' + dupla.rdv_tecnico.toFixed(2) },
+    { label: 'RDV Auxiliar', value: 'R$ ' + dupla.rdv_aux.toFixed(2) }
+  ];
+  items.forEach(i => {
+    const div = document.createElement('div');
+    div.className = 'summary-item';
+    div.innerHTML = '<strong>' + i.label + '</strong><span>' + i.value + '</span>';
+    summaryEl.appendChild(div);
+  });
+
+  calendarGrid.innerHTML = '';
+  weekDays.forEach(d => {
+    const dayData = dupla.dias[d.id] || {};
+    const manha = dayData.manha || { ch: '—', servico: '—', cliente: '—' };
+    const tarde = dayData.tarde || { ch: '—', servico: '—', cliente: '—' };
+
+    const dayCard = document.createElement('div');
+    dayCard.className = 'day-card';
+
+    const manhaBlock = document.createElement('div');
+    manhaBlock.className = 'period-block';
+    manhaBlock.innerHTML = '<div class="period-title">Manhã</div>';
+    const manhaRow = document.createElement('div');
+    manhaRow.className = 'info-row';
+    manhaRow.appendChild(makeInfoCard('Cliente', manha.cliente));
+    manhaRow.appendChild(makeInfoCard('Serviço', manha.servico));
+    manhaRow.appendChild(makeInfoCard('CH', manha.ch));
+    manhaBlock.appendChild(manhaRow);
+
+    const tardeBlock = document.createElement('div');
+    tardeBlock.className = 'period-block';
+    tardeBlock.innerHTML = '<div class="period-title">Tarde</div>';
+    const tardeRow = document.createElement('div');
+    tardeRow.className = 'info-row';
+    tardeRow.appendChild(makeInfoCard('Cliente', tarde.cliente));
+    tardeRow.appendChild(makeInfoCard('Serviço', tarde.servico));
+    tardeRow.appendChild(makeInfoCard('CH', tarde.ch));
+    tardeBlock.appendChild(tardeRow);
+
+    dayCard.appendChild(manhaBlock);
+    dayCard.appendChild(tardeBlock);
+
+    calendarGrid.appendChild(dayCard);
+  });
+
+  placeholder.style.display = 'none';
+  summaryEl.style.display = 'flex';
+  calendarWrapper.style.display = 'block';
+}
+
+// events
+duplaSelect.addEventListener('change', function(){
+  const id = this.value;
+  if(!id){
+    summaryEl.style.display = 'none';
+    calendarWrapper.style.display = 'none';
+    placeholder.style.display = 'block';
+    return;
+  }
+  const dupla = duplas.find(d => d.id === id);
+  if(dupla){ renderCalendar(dupla); }
+});
+
+toggleButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    toggleButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const view = btn.dataset.view;
+    if(view === 'agenda'){
+      agendaView.style.display = 'block';
+      document.getElementById('agendaControls').style.display = 'flex';
+      plantaoView.style.display = 'none';
+    } else {
+      agendaView.style.display = 'none';
+      document.getElementById('agendaControls').style.display = 'none';
+      plantaoView.style.display = 'block';
+    }
+  });
+});
+
+initDuplaSelect();
+renderHeader();
+
+const plantaoInput = document.getElementById('plantaoFilter');
+if(plantaoInput){
+  plantaoInput.addEventListener('change', function(){
+    const value = this.value.toLowerCase();
+    const rows = document.querySelectorAll('.plantao-table tbody tr');
+    rows.forEach(row => {
+      const name = row.cells[1].innerText.toLowerCase();
+      if(!value){ row.style.display = ''; }
+      else{ row.style.display = name.includes(value) ? '' : 'none'; }
+    });
+  });
+}
+
+</script>
+</body>
+</html>
